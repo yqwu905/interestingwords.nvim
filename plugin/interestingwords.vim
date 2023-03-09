@@ -53,7 +53,11 @@ function! s:apply_color_to_word(n, word, mode, mid)
   endif
 
   try
-    call matchadd("InterestingWord" . (a:n + 1), pat, 1, a:mid)
+    let winnr = 1
+    while winnr <= winnr("$")
+      call matchadd("InterestingWord" . (a:n + 1), pat, 1, a:mid, {"window":winnr})
+      let winnr += 1
+    endwhile
   catch /E801/      " match id already taken.
   endtry
 endfunction
@@ -66,12 +70,15 @@ function! s:nearest_group_at_cursor() abort
       continue
     endif
     let l:word = l:mids[0][0]
-    let l:position = match(getline('.'), l:match_item.pattern)
-    if l:position > -1
-      if col('.') > l:position && col('.') <= l:position + len(l:word)
-        return l:word
+    let l:cnt = 1
+    let l:position = match(getline('.'), l:match_item.pattern,0,cnt)
+    while l:position > -1 && col('.') > l:position 
+      if col('.') <= l:position + len(l:word)
+          return l:word
       endif
-    endif
+      let l:cnt += 1
+      let l:position = match(getline('.'), l:match_item.pattern,0,l:cnt)
+    endwhile
   endfor
   return ''
 endfunction
@@ -81,8 +88,12 @@ function! UncolorWord(word)
 
   if (index > -1)
     let mid = s:mids[a:word]
+    let winnr = 1
+    while winnr <= winnr("$")
+      silent! call matchdelete(mid, winnr)
+      let winnr += 1
+    endwhile
 
-    silent! call matchdelete(mid)
     let s:interestingWords[index] = 0
     unlet s:mids[a:word]
   endif
@@ -164,7 +175,7 @@ function! UncolorAllWords()
   endfor
 endfunction
 
-function! RecolorAllWords()
+function! s:recolorAllWords()
   let i = 0
   for word in s:interestingWords
     if (type(word) == 1)
@@ -268,3 +279,5 @@ if g:interestingWordsDefaultMappings
    catch /E227/
    endtry
 endif
+
+au WinEnter * call s:recolorAllWords()
