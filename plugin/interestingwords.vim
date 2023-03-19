@@ -135,6 +135,7 @@ function! WordNavigation(direction)
       echohl WarningMsg | echomsg "E486: Pattern not found: " . @/
     endtry
   endif
+  normal! zz
 endfunction
 
 function! InterestingWords(mode) range
