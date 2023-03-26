@@ -70,18 +70,18 @@ function! s:nearest_group_at_cursor() abort
     if len(l:mids) == 0
       continue
     endif
-    let l:cnt = 1
     let l:content = join(getline(1, '$'), "\n")
     let l:cur_pos = len(join(getline(1, line('.')-1), "\n")) + (line('.') != 1) + col('.') - 1
+    let l:last_pos = 0
     while v:true
-      let l:mat_pos = matchstrpos(l:content, l:match_item.pattern, 0, l:cnt)
+      let l:mat_pos = matchstrpos(l:content, l:match_item.pattern, l:last_pos, 1)
       if l:mat_pos[1] == -1
         break
       endif
       if l:cur_pos >= l:mat_pos[1] && l:cur_pos < l:mat_pos[2]
           return l:match_item.pattern
       endif
-      let l:cnt += 1
+      let l:last_pos = l:mat_pos[2]
     endwhile
   endfor
   return ''
