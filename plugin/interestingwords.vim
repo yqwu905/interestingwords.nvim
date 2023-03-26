@@ -71,11 +71,10 @@ function! s:nearest_group_at_cursor() abort
       continue
     endif
     let l:cnt = 1
-    let l:content = join(getline(1, '$'), '\n')
-    let l:cur_pos = len(join(getline(1, line('.')-1), '\n')) + (line('.') != 1) + col('.') - 1
+    let l:content = join(getline(1, '$'), "\n")
+    let l:cur_pos = len(join(getline(1, line('.')-1), "\n")) + (line('.') != 1) + col('.') - 1
     while v:true
       let l:mat_pos = matchstrpos(l:content, l:match_item.pattern, 0, l:cnt)
-      echom(l:mat_pos)
       if l:mat_pos[1] == -1
         break
       endif
