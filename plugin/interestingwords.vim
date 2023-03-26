@@ -48,7 +48,7 @@ function! s:apply_color_to_word(n, word, mode, mid)
   let l:case = s:checkIgnoreCase(a:word) ? '\c' : '\C'
   let l:pat = ''
   if a:mode == 'v'
-    let l:pat = l:case . '\V\zs' . a:word . '\ze'
+    let l:pat = l:case . '\V' . a:word
   else
     let l:pat = l:case . '\V\<' . escape(a:word, '\') . '\>'
   endif
@@ -70,16 +70,19 @@ function! s:nearest_group_at_cursor() abort
     if len(l:mids) == 0
       continue
     endif
-    let l:word = l:mids[0][0]
-    echom l:word .. "  =="
     let l:cnt = 1
-    let l:position = match(getline('.'), l:match_item.pattern,0,cnt)
-    while l:position > -1 && col('.') > l:position 
-      if col('.') <= l:position + len(l:word)
-          return l:word
+    let l:content = join(getline(1, '$'), '\n')
+    let l:cur_pos = len(join(getline(1, line('.')-1), '\n')) + (line('.') != 1) + col('.') - 1
+    while v:true
+      let l:mat_pos = matchstrpos(l:content, l:match_item.pattern, 0, l:cnt)
+      echom(l:mat_pos)
+      if l:mat_pos[1] == -1
+        break
+      endif
+      if l:cur_pos >= l:mat_pos[1] && l:cur_pos < l:mat_pos[2]
+          return l:match_item.pattern
       endif
       let l:cnt += 1
-      let l:position = match(getline('.'), l:match_item.pattern,0,l:cnt)
     endwhile
   endfor
   return ''
@@ -106,28 +109,18 @@ endfunction
 
 function! GetPickedWord()
   let l:currentWord = s:nearest_group_at_cursor()
-
-  if (s:checkIgnoreCase(l:currentWord))
-    let l:currentWord = tolower(l:currentWord)
-  endif
-
-  let l:pat = ""
-  if (index(s:interestingWords, l:currentWord) > -1)
-    let l:index = index(s:interestingWords, l:currentWord)
-    let l:mode = s:interestingModes[l:index]
-    let l:case = s:checkIgnoreCase(l:currentWord) ? '\c' : '\C'
-    if l:mode == 'v'
-      let l:pat = l:case . '\V\zs' . escape(l:currentWord, '\') . '\ze'
-    else
-      let l:pat = l:case . '\V\<' . escape(l:currentWord, '\') . '\>'
-    endif
+  if len(l:currentWord) != 0
+    return l:currentWord
   else
-    let l:pat = @/
+    return @/
   endif
-  return l:pat
 endfunction
 
 function! NavigateToWord(word, direction)
+  if a:word == ''
+    return
+  endif
+
   let l:searchFlag = ''
   if !(a:direction)
     let l:searchFlag = 'b'
@@ -145,7 +138,7 @@ function! InterestingWords(mode) range
   if a:mode == 'v'
     let l:currentWord = s:get_visual_selection()
   else
-    let l:currentWord = expand('<cword>') . ''
+    let l:currentWord = expand('<cword>')
   endif
   if !(len(l:currentWord))
     return
@@ -294,31 +287,6 @@ endfunction
 
 if !exists('g:interestingWordsDefaultMappings') || g:interestingWordsDefaultMappings != 0
     let g:interestingWordsDefaultMappings = 1
-endif
-
-if g:interestingWordsDefaultMappings && !hasmapto('<Plug>InterestingWords')
-    nnoremap <silent> <leader>k :call InterestingWords('n')<cr>
-    vnoremap <silent> <leader>k :call InterestingWords('v')<cr>
-    nnoremap <silent> <leader>K :call UncolorAllWords()<cr>
-
-    nnoremap <silent> n :call WordNavigation(1)<cr>
-    nnoremap <silent> N :call WordNavigation(0)<cr>
-endif
-
-if g:interestingWordsDefaultMappings
-   try
-      nnoremap <silent> <unique> <script> <Plug>InterestingWords
-               \ :call InterestingWords('n')<cr>
-      vnoremap <silent> <unique> <script> <Plug>InterestingWords
-               \ :call InterestingWords('v')<cr>
-      nnoremap <silent> <unique> <script> <Plug>InterestingWordsClear
-               \ :call UncolorAllWords()<cr>
-      nnoremap <silent> <unique> <script> <Plug>InterestingWordsForeward
-               \ :call WordNavigation(1)<cr>
-      nnoremap <silent> <unique> <script> <Plug>InterestingWordsBackward
-               \ :call WordNavigation(0)<cr>
-   catch /E227/
-   endtry
 endif
 
 au WinEnter * call s:recolorAllWords()
