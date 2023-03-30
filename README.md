@@ -11,7 +11,7 @@ vim-interestingwords highlights the occurrences of the word under the cursor thr
 - Highlights multiple word in same time
 ![Screenshot](./highlight.png)
 
-- Navigating word under cursor, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search
+- Navigating word under cursor, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search, and cursor always in center
 
 - Show search count for under cursor word
 ![Screenshot](./search_count.png)
@@ -42,7 +42,7 @@ use 'Mr-LLLLL/vim-interestingwords'
 
 ### Navigating Highlights
 
-With a highlighted word **under your cursor**, you can **navigate** through the occurrences of this word with ``n`` and ``N``, just as you would if you were using a traditional search.
+With a highlighted word **under your cursor**, you can **navigate** through the occurrences of this word with ``n`` and ``N``, and cursor always in center
 
 ### Clearing (every) Highlight
 

@@ -201,7 +201,10 @@ m.init_search_count = function()
                 end
                 if event.match == "/" or event.match == "?" then
                     vim.defer_fn(function()
-                        m.search_count(fn.getreg('/'))
+                        local searched = m.search_count(fn.getreg('/'))
+                        if searched then
+                            vim.cmd("normal! zz")
+                        end
                     end, 100)
                 end
             end,
@@ -212,7 +215,7 @@ end
 m.search_count = function(word)
     hide_search_count(0)
     if word == "" then
-        return
+        return false
     end
 
     local cur_cnt = 0
@@ -234,11 +237,13 @@ m.search_count = function(word)
     end
 
     if total_cnt == 0 or cur_cnt == 0 then
-        return
+        return false
     end
 
     local count = ' [' .. cur_cnt .. '/' .. total_cnt .. ']'
     display_search_count(word, count)
+
+    return true
 end
 
 m.NavigateToWord = function(forward)
