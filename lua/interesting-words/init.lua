@@ -129,7 +129,7 @@ end
 
 local nearest_word_at_cursor = function()
     for _, match_item in pairs(fn.getmatches()) do
-        if match_item.id >= m.limits.min or match_item <= m.limits.max then
+        if match_item.id >= m.limits.min or match_item.id <= m.limits.max then
             local buf_content = fn.join(api.nvim_buf_get_lines(0, 0, -1, {}), "\n")
             local cur_pos = #fn.join(api.nvim_buf_get_lines(0, 0, fn.line('.') - 1, {}), "\n")
                 + ((fn.line('.') == 1) and 0 or 1) + fn.col('.') - 1
@@ -193,10 +193,10 @@ m.init_search_count = function()
 end
 
 m.search_count = function(word)
+    api.nvim_buf_del_extmark(0, m.search_count_namespace, m.search_count_extmark_id)
     if word == "" then
         return
     end
-    api.nvim_buf_del_extmark(0, m.search_count_namespace, m.search_count_extmark_id)
 
     local cur_cnt = 0
     local total_cnt = 0
@@ -216,7 +216,9 @@ m.search_count = function(word)
         lst_pos = mat_pos[3]
     end
 
-    local text = ' [' .. cur_cnt .. '/' .. total_cnt .. ']'
+    local icon = ''
+    local count = ' [' .. cur_cnt .. '/' .. total_cnt .. ']'
+    local text = icon .. count
     m.search_count_extmark_id = api.nvim_buf_set_extmark(0, m.search_count_namespace, fn.line('.') - 1, 0, {
         virt_text_pos = 'eol',
         virt_text = {
@@ -224,7 +226,7 @@ m.search_count = function(word)
         },
         hl_mode = 'combine',
     })
-    m.search_count_cache = ' ' .. filter(word) .. ' [' .. cur_cnt .. '/' .. total_cnt .. ']'
+    m.search_count_cache = icon .. ' ' .. filter(word) .. count
     m.search_count_timer:again()
 end
 
@@ -245,7 +247,7 @@ m.NavigateToWord = function(forward)
     if n ~= 0 then
         vim.cmd("normal! zz")
     else
-        vim.notify("Pattern not found: " .. word)
+        vim.notify("Pattern not found: " .. filter(word))
         return
     end
 
@@ -266,13 +268,10 @@ m.InterestingWord = function(mode, search)
     end
     word = get_reg_ex(word)
 
-    if m.config.search_count then
-        m.search_count(word)
-    end
-
     if search then
         if word == fn.getreg('/') then
             fn.setreg('/', '')
+            word = ''
         else
             fn.setreg('/', word)
             vim.cmd("set hls")
@@ -280,23 +279,33 @@ m.InterestingWord = function(mode, search)
     else
         if m.words[word] then
             uncolor(word)
+            word = ''
         else
             color(word)
         end
     end
+
+    if m.config.search_count then
+        m.search_count(word)
+    end
 end
 
-m.UncolorAllWords = function()
-    for _, v in pairs(m.words) do
-        for i = 1, fn.winnr('$') do
-            pcall(function()
-                fn.matchdelete(v.mid, i)
-            end)
+m.UncolorAllWords = function(search)
+    m.search_count('')
+    if search then
+        fn.setreg('/', '')
+    else
+        for _, v in pairs(m.words) do
+            for i = 1, fn.winnr('$') do
+                pcall(function()
+                    fn.matchdelete(v.mid, i)
+                end)
+            end
+            m.colors[v.color] = v.mid
         end
-        m.colors[v.color] = v.mid
-    end
 
-    m.words = {}
+        m.words = {}
+    end
 end
 
 m.setup = function(opt)
@@ -310,7 +319,16 @@ m.setup = function(opt)
     api.nvim_create_autocmd(
         { "WinEnter" },
         {
-            callback = recolorAllWords,
+            callback = function()
+                recolorAllWords()
+                for i = 1, fn.winnr('$') do
+                    api.nvim_buf_del_extmark(
+                        api.nvim_win_get_buf(fn.win_getid(i)),
+                        m.search_count_namespace,
+                        m.search_count_extmark_id
+                    )
+                end
+            end,
             group = group,
         }
     )
@@ -329,7 +347,7 @@ m.setup = function(opt)
             m.InterestingWord('v', true)
         end, { noremap = true, silent = true })
         vim.keymap.set('n', m.config.cancel_search_key, function()
-            vim.fn.setreg('/', '')
+            m.UncolorAllWords(true)
         end, { noremap = true, silent = true })
     end
 
@@ -340,7 +358,9 @@ m.setup = function(opt)
         vim.keymap.set("x", m.config.color_key, function()
             m.InterestingWord('v', false)
         end, { noremap = true, silent = true })
-        vim.keymap.set("n", m.config.cancel_color_key, m.UncolorAllWords, { noremap = true, silent = true })
+        vim.keymap.set("n", m.config.cancel_color_key, function()
+            m.UncolorAllWords()
+        end, { noremap = true, silent = true })
     end
 
     if m.config.search_count then
