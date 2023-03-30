@@ -1,29 +1,44 @@
 # vim-interestingwords
 
-> Word highlighting and navigation throughout out the buffer.
+> forked from [vim-interestingwords](https://github.com/lfv89/vim-interestingwords) and rewrite with lua
 
 
 vim-interestingwords highlights the occurrences of the word under the cursor throughout the buffer. Different words can be highlighted at the same time. The plugin also enables one to navigate through the highlighted words in the buffer just like one would through the results of a search.
 
-![Screenshot](https://i.imgbox.com/5k3OJWIk.png)
+![Screenshot](./interesting.png)
+## Feature
+
+- Highlights multiple word in same time
+![Screenshot](./highlight.png)
+
+- Navigating word under cursor, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search
+
+- Show search count for under cursor word
+![Screenshot](./search_count.png)
+
+- Support lualine
+![Screenshot](./lualine.png)
 
 ## Installation
 
-The recommended installation is through `vim-plug`:
+With [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
-```vimscript
-Plug 'lfv89/vim-interestingwords'
+```
+use 'Mr-LLLLL/vim-interestingwords'
 ```
 
 ## Usage
 
-- Highlight with ``<Leader>k``
+- Highlight with ``<Leader>k`` or search with ``<Leader>m``
 - Navigate highlighted words with ``n`` and ``N``
-- Clear every word highlight with ``<Leader>K`` throughout the buffer
+- Clear every word highlight with ``<Leader>K`` or search with ``<Leader>M`` throughout the buffer
+- Display search count with virtual text
 
 ### Highlighting Words
 
 ``<Leader>k`` will act as a **toggle**, so you can use it to highlight and remove the highlight from a given word. Note that you can highlight different words at the same time.
+
+``<Leader>m`` will act as a **toggle**, so you can use it to search and highlight or remove search from a given word. Note that you can search a words at the same time.
 
 ### Navigating Highlights
 
@@ -31,43 +46,35 @@ With a highlighted word **under your cursor**, you can **navigate** through the 
 
 ### Clearing (every) Highlight
 
-Finally, if you don't want to toggle every single highlighted word and want to clear all of them, just hit ``<Leader>K``
+Finally, if you don't want to toggle every single highlighted word and want to clear all of them, just hit ``<Leader>K``, if you don't want to jump to search word, and cancel the search just hit ``<Leader>M``
 
 ## Configuration
 
 The plugin comes with those default mapping, but you can change it as you like:
 
-`let g:interestingWordsDefaultMappings = 0` if to disable default mapping
-
-```vimscript
-nnoremap <silent> <leader>k :call InterestingWords('n')<cr>
-vnoremap <silent> <leader>k :call InterestingWords('v')<cr>
-nnoremap <silent> <leader>K :call UncolorAllWords()<cr>
-
-nnoremap <silent> n :call WordNavigation(1)<cr>
-nnoremap <silent> N :call WordNavigation(0)<cr>
+``` lua
+    require("interesting-words").setup {
+        colors = { '#aeee00', '#ff0000', '#0000ff', '#b88823', '#ffa724', '#ff2c4b' },
+        search_count = true,
+        navigation = true,
+        search_key = "<leader>m",
+        cancel_search_key = "<leader>M",
+        color_key = "<leader>k",
+        cancel_color_key = "<leader>K",
+    }
 ```
 
-Thanks to **@gelguy** it is now possible to randomise and configure your own colors
-
-To configure the colors for a GUI, add this to your .vimrc:
-
-```vimscript
-let g:interestingWordsGUIColors = ['#8CCBEA', '#A4E57E', '#FFDB72', '#FF7272', '#FFB3FF', '#9999FF']
+support lualine config, this is not default, you need to manual added
+``` lua
+    require('lualine').setup{
+        lualine_x = {
+            ...
+            {
+                require("interesting-words").lualine_get,
+                cond = require("interesting-words").lualine_has,
+                color = { fg = "#ff9e64" },
+            },
+            ...
+        }
+    }
 ```
-
-And for a terminal:
-
-```vimscript
-let g:interestingWordsTermColors = ['154', '121', '211', '137', '214', '222']
-```
-
-Also, if you want to randomise the colors (applied to each new buffer), add this to your .vimrc:
-
-```vimscript
-let g:interestingWordsRandomiseColors = 1
-```
-
-## Credits
-
-The idea to build this plugin came from the **@stevelosh** video's where he shows some pretty cool configurations from his .vimrc. He named this configuration interesting words, and I choose to keep the name for this plugin. The video is on youtube: https://www.youtube.com/watch?v=xZuy4gBghho
