@@ -152,6 +152,23 @@ local filter = function(word)
     return string.sub(word, 5, -1)
 end
 
+local display_search_count = function(word, count)
+    local icon = ''
+    m.search_count_extmark_id = api.nvim_buf_set_extmark(0, m.search_count_namespace, fn.line('.') - 1, 0, {
+        virt_text_pos = 'eol',
+        virt_text = {
+            { icon .. count, "Comment" },
+        },
+        hl_mode = 'combine',
+    })
+    m.search_count_cache = icon .. ' ' .. filter(word) .. count
+    m.search_count_timer:again()
+end
+
+local hide_search_count = function(bufnr)
+    api.nvim_buf_del_extmark(bufnr, m.search_count_namespace, m.search_count_extmark_id)
+end
+
 m.lualine_get = function()
     return m.search_count_cache
 end
@@ -167,7 +184,7 @@ m.init_search_count = function()
     m.search_count_timer:start(0, 5000, function()
         m.search_count_cache = ""
         vim.defer_fn(function()
-                api.nvim_buf_del_extmark(0, m.search_count_namespace, m.search_count_extmark_id)
+                hide_search_count(0)
             end,
             100
         )
@@ -193,7 +210,7 @@ m.init_search_count = function()
 end
 
 m.search_count = function(word)
-    api.nvim_buf_del_extmark(0, m.search_count_namespace, m.search_count_extmark_id)
+    hide_search_count(0)
     if word == "" then
         return
     end
@@ -216,18 +233,12 @@ m.search_count = function(word)
         lst_pos = mat_pos[3]
     end
 
-    local icon = ''
+    if total_cnt == 0 or cur_cnt == 0 then
+        return
+    end
+
     local count = ' [' .. cur_cnt .. '/' .. total_cnt .. ']'
-    local text = icon .. count
-    m.search_count_extmark_id = api.nvim_buf_set_extmark(0, m.search_count_namespace, fn.line('.') - 1, 0, {
-        virt_text_pos = 'eol',
-        virt_text = {
-            { text, "Comment" },
-        },
-        hl_mode = 'combine',
-    })
-    m.search_count_cache = icon .. ' ' .. filter(word) .. count
-    m.search_count_timer:again()
+    display_search_count(word, count)
 end
 
 m.NavigateToWord = function(forward)
@@ -322,11 +333,7 @@ m.setup = function(opt)
             callback = function()
                 recolorAllWords()
                 for i = 1, fn.winnr('$') do
-                    api.nvim_buf_del_extmark(
-                        api.nvim_win_get_buf(fn.win_getid(i)),
-                        m.search_count_namespace,
-                        m.search_count_extmark_id
-                    )
+                    hide_search_count(api.nvim_win_get_buf(fn.win_getid(i)))
                 end
             end,
             group = group,
