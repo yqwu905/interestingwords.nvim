@@ -11,7 +11,7 @@ vim-interestingwords highlights the occurrences of the word under the cursor thr
 - Highlights multiple word in same time
 ![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/highlight.png)
 
-- Navigating word under cursor and scroll smoothly, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search, and cursor always in center
+- Navigating word under cursor, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search, and cursor will scrolling smoothly to center of screen
 
 - Show search count for under cursor word
 ![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/search_count.png)
