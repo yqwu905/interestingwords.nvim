@@ -195,23 +195,29 @@ local scroll_to_center = function()
     local up = lines > 0
     lines = math.abs(lines)
 
-    local each_time = function()
-        local t = 200
-        for _ = 1, lines do
-            t = t - math.floor(t * 0.25 / (math.floor(lines / 10) + 1))
-        end
-
-        return t
+    local move_lines = function(n)
+        return math.floor(n/5)+1
     end
-    local fixed_time = each_time()
+
+    local each_time = function()
+        local lines_bak = lines
+        local circles = 0
+        while lines_bak ~= 0 do
+            lines_bak = lines_bak - move_lines(lines_bak)
+            circles = circles +1
+        end
+        local pseudo_total_time = 300 + 15 * math.min((lines - 11), 10) + lines
+        return math.floor(pseudo_total_time / circles)
+    end
+    local t = each_time()
+    local time_total = 0
 
     local scroll_callback = function()
-        local cnt = 1
+        local cnt = move_lines(lines)
         if lines == 0 then
             stop_scrolling()
             return
         else
-            cnt = math.floor(lines / 10) + 1
             lines = lines - cnt
         end
 
@@ -220,9 +226,10 @@ local scroll_to_center = function()
         else
             scroll_down(cnt)
         end
+        time_total = time_total + t
     end
 
-    scroll_timer:start(fixed_time, fixed_time, vim.schedule_wrap(scroll_callback))
+    scroll_timer:start(t, t, vim.schedule_wrap(scroll_callback))
 end
 
 m.lualine_get = function()
