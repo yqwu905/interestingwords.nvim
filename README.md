@@ -5,19 +5,19 @@
 
 vim-interestingwords highlights the occurrences of the word under the cursor throughout the buffer. Different words can be highlighted at the same time. The plugin also enables one to navigate through the highlighted words in the buffer just like one would through the results of a search.
 
-![Screenshot](https://github.com/Mr-LLLLL/media/tree/master/vim-interesting/interesting.png)
+![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/interesting.png)
 ## Feature
 
 - Highlights multiple word in same time
-![Screenshot](https://github.com/Mr-LLLLL/media/tree/master/vim-interesting/highlight.png)
+![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/highlight.png)
 
 - Navigating word under cursor and scroll smoothly, ``n`` is forward, ``N`` is backword, no matter with ``/`` or ``?`` search, and cursor always in center
 
 - Show search count for under cursor word
-![Screenshot](https://github.com/Mr-LLLLL/media/tree/master/vim-interesting/search_count.png)
+![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/search_count.png)
 
 - Support lualine
-![Screenshot](https://github.com/Mr-LLLLL/media/tree/master/vim-interesting/lualine.png)
+![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/lualine.png)
 
 ## Installation
 
