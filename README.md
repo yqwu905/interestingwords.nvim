@@ -3,7 +3,7 @@
 > forked from [vim-interestingwords](https://github.com/lfv89/vim-interestingwords) and rewrite with lua
 
 
-vim-interestingwords highlights the occurrences of the word under the cursor throughout the buffer. Different words can be highlighted at the same time. The plugin also enables one to navigate through the highlighted words in the buffer just like one would through the results of a search.
+viminterestingwords.nvim highlights the occurrences of the word under the cursor throughout the buffer. Different words can be highlighted at the same time. The plugin also enables one to navigate through the highlighted words in the buffer just like one would through the results of a search.
 
 ![Screenshot](https://github.com/Mr-LLLLL/media/blob/master/vim-interesting/interesting.png)
 ## Feature
@@ -24,7 +24,7 @@ vim-interestingwords highlights the occurrences of the word under the cursor thr
 With [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```
-use 'Mr-LLLLL/vim-interestingwords'
+use 'Mr-LLLLL/interestingwords.nvim'
 ```
 
 ## Usage
@@ -53,7 +53,7 @@ Finally, if you don't want to toggle every single highlighted word and want to c
 The plugin comes with those default mapping, but you can change it as you like:
 
 ``` lua
-    require("interesting-words").setup {
+    require("interestingwords").setup {
         colors = { '#aeee00', '#ff0000', '#0000ff', '#b88823', '#ffa724', '#ff2c4b' },
         search_count = true,
         navigation = true,
@@ -70,7 +70,7 @@ support lualine config, this is not default, you need to manual added
         lualine_x = {
             ...
             {
-                require("interesting-words").lualine_get,
+                require("interestingwords").lualine_get,
                 cond = require("interesting-words").lualine_has,
                 color = { fg = "#ff9e64" },
             },
