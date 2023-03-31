@@ -57,6 +57,7 @@ local get_visual_selection = function()
     elseif api.nvim_get_mode().mode == 'v' then
         lines = api.nvim_buf_get_text(0, start_row, start_col, end_row, end_col, {})
     end
+    vim.cmd("normal! ")
     if lines == nil then
         return ""
     end
