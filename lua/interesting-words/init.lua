@@ -57,7 +57,6 @@ local get_visual_selection = function()
     elseif api.nvim_get_mode().mode == 'v' then
         lines = api.nvim_buf_get_text(0, start_row, start_col, end_row, end_col, {})
     end
-    vim.cmd("normal! " .. api.nvim_get_mode().mode)
     if lines == nil then
         return ""
     end
@@ -203,7 +202,7 @@ m.init_search_count = function()
                     vim.defer_fn(function()
                         local searched = m.search_count(fn.getreg('/'))
                         if searched then
-                            vim.cmd("normal! zz")
+                            vim.cmd("normal zz")
                         end
                     end, 100)
                 end
@@ -261,7 +260,7 @@ m.NavigateToWord = function(forward)
     end
     local n = fn.search(word, search_flag)
     if n ~= 0 then
-        vim.cmd("normal! zz")
+        vim.cmd("normal zz")
     else
         vim.notify("Pattern not found: " .. filter(word))
         return
