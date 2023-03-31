@@ -168,6 +168,58 @@ local hide_search_count = function(bufnr)
     api.nvim_buf_del_extmark(bufnr, m.search_count_namespace, m.search_count_extmark_id)
 end
 
+local scroll_timer = vim.loop.new_timer()
+local function scroll_up(cnt)
+    return vim.cmd("normal! " .. cnt .. "")
+end
+
+local function scroll_down(cnt)
+    return vim.cmd("normal! " .. cnt .. "")
+end
+
+local function stop_scrolling()
+    scroll_timer:stop()
+end
+
+local scroll_to_center = function()
+    local window_height = api.nvim_win_get_height(0)
+    local lines = fn.winline() - math.ceil(window_height / 2)
+    if lines == 0 then
+        return
+    end
+    local up = lines > 0
+    lines = math.abs(lines)
+
+    local each_time = function()
+        local t = 200
+        for _ = 1, lines do
+            t = t - math.floor(t * 0.25 / (math.floor(lines / 10) + 1))
+        end
+
+        return t
+    end
+    local fixed_time = each_time()
+
+    local scroll_callback = function()
+        local cnt = 1
+        if lines == 0 then
+            stop_scrolling()
+            return
+        else
+            cnt = math.floor(lines / 10) + 1
+            lines = lines - cnt
+        end
+
+        if up then
+            scroll_up(cnt)
+        else
+            scroll_down(cnt)
+        end
+    end
+
+    scroll_timer:start(fixed_time, fixed_time, vim.schedule_wrap(scroll_callback))
+end
+
 m.lualine_get = function()
     return m.search_count_cache
 end
@@ -202,7 +254,7 @@ m.init_search_count = function()
                     vim.defer_fn(function()
                         local searched = m.search_count(fn.getreg('/'))
                         if searched then
-                            vim.cmd("normal zz")
+                            scroll_to_center()
                         end
                     end, 100)
                 end
@@ -260,7 +312,7 @@ m.NavigateToWord = function(forward)
     end
     local n = fn.search(word, search_flag)
     if n ~= 0 then
-        vim.cmd("normal zz")
+        scroll_to_center()
     else
         vim.notify("Pattern not found: " .. filter(word))
         return
