@@ -71,7 +71,7 @@ support lualine config, this is not default, you need to manual added
             ...
             {
                 require("interestingwords").lualine_get,
-                cond = require("interesting-words").lualine_has,
+                cond = require("interestingwords").lualine_has,
                 color = { fg = "#ff9e64" },
             },
             ...
