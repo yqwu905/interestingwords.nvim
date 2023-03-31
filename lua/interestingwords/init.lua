@@ -148,7 +148,11 @@ local nearest_word_at_cursor = function()
 end
 
 local filter = function(word)
-    return string.sub(word, 5, -1)
+    if #word <= 4 or (string.sub(word, 1, 4) ~= "\\c\\V" and string.sub(word, 1, 4) ~= "\\C\\V") then
+        return word
+    else
+        return string.sub(word, 5, -1)
+    end
 end
 
 local display_search_count = function(word, count)
@@ -183,7 +187,7 @@ end
 
 local scroll_to_center = function()
     local window_height = api.nvim_win_get_height(0)
-    local lines = fn.winline() - math.ceil(window_height / 2)
+    local lines = fn.winline() - math.floor(window_height / 2)
     if lines == 0 then
         return
     end
