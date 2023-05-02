@@ -440,4 +440,20 @@ m.setup = function(opt)
 	end
 end
 
+m.NavigateForward = function()
+	m.NavigateToWord(true)
+end
+
+m.NavigateBackward = function()
+	m.NavigateToWord(false)
+end
+
+m.SearchNormal = function()
+	m.InterestingWord("n", true)
+end
+
+m.SearchVisual = function()
+	m.InterestingWord("v", true)
+end
+
 return m
