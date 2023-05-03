@@ -254,22 +254,22 @@ m.init_search_count = function()
 		m.search_count_timer:stop()
 	end)
 
-	vim.api.nvim_create_autocmd({ "CmdlineLeave" }, {
-		pattern = { "*" },
-		callback = function(event)
-			if vim.v.event.abort then
-				return
-			end
-			if event.match == "/" or event.match == "?" then
-				vim.defer_fn(function()
-					local searched = m.search_count(fn.getreg("/"))
-					if searched then
-						scroll_to_center()
-					end
-				end, 100)
-			end
-		end,
-	})
+-- 	vim.api.nvim_create_autocmd({ "CmdlineLeave" }, {
+-- 		pattern = { "*" },
+-- 		callback = function(event)
+-- 			if vim.v.event.abort then
+-- 				return
+-- 			end
+-- 			if event.match == "/" or event.match == "?" then
+-- 				vim.defer_fn(function()
+-- 					local searched = m.search_count(fn.getreg("/"))
+-- 					if searched then
+-- 						scroll_to_center()
+-- 					end
+-- 				end, 100)
+-- 			end
+-- 		end,
+-- 	})
 end
 
 m.search_count = function(word)
@@ -322,9 +322,9 @@ m.NavigateToWord = function(forward)
 		search_flag = "b"
 	end
 	local n = fn.search(word, search_flag)
-	if n ~= 0 then
-		scroll_to_center()
-	else
+	if n == 0 then
+		-- scroll_to_center()
+	-- else
 		vim.notify("Pattern not found: " .. filter(word))
 		return
 	end
