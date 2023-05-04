@@ -449,11 +449,11 @@ m.NavigateBackward = function()
 end
 
 m.SearchNormal = function()
-	m.InterestingWord("n", true)
+	m.InterestingWord("n", false)
 end
 
 m.SearchVisual = function()
-	m.InterestingWord("v", true)
+	m.InterestingWord("v", false)
 end
 
 return m
